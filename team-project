@@ -1,0 +1,37 @@
+import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from bs4 import BeautifulSoup as bs
+import requests as rq
+import time
+
+driver = webdriver.Chrome(executable_path= "./chromedriver.exe")
+url = "https://www.oliveyoung.co.kr/store/main/getBestList.do"
+driver.get(url)
+
+time.sleep(10)
+
+body = driver.find_element_by_tag_name("body")
+
+num_of_pagedowns = 50
+
+while num_of_pagedowns:
+  body.send_keys(Keys.PAGE_DOWN)
+  time.sleep(0.3)
+  num_of_pagedowns -= 1
+
+html = driver.page_source 
+soup = bs(html, 'html.parser') 
+words=soup.findAll('p',{'class':'tx_name'})
+
+from datetime import datetime as dt
+time = dt.now()
+
+print('{}'.format(time))
+print('--올리브영 화장품 순위--')
+for i in range(20):
+  res = print('{0:2d}위:{1}'.format(i+1,words[i].text))
+
+driver.close()
+data = pd.DataFrame(res)
+data.to_csv('./data.csv')
